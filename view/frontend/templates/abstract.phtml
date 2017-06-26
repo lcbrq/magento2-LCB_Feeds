@@ -1,0 +1,32 @@
+<?php
+/**
+ * Customizable datafeeds extension for Magento 2
+ *
+ * @category   LCB
+ * @package    LCB_Feeds
+ * @author     Silpion Tomasz Gregorczyk <tom@leftcurlybracket.com>
+ * 
+ * @var \LCB\Feeds\Block\Feed $block 
+ */
+echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"; 
+?>
+<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
+  <channel>
+<?php foreach($block->getProducts() as $_product): 
+    $product = $block->setProduct($_product);
+    ?>
+   <item>
+      <title><?php echo $product->getName(); ?></title>
+      <link><?php echo $product->getProductUrl(); ?></link>
+      <description><![CDATA[<?php echo $product->getDescription(); ?>]]></description>
+      <g:id><?php echo $product->getSku(); ?></g:id>
+      <g:gtin><?php echo $product->getEan(); ?></g:gtin>
+      <g:condition><?php echo $product->getCondition(); ?></g:condition>
+      <g:availability><?php echo $product->getAvailability(); ?></g:availability>
+      <g:price><?php echo $product->getPrice(); ?></g:price>
+      <g:brand><?php echo $product->getBrand(); ?></g:brand>
+      <g:image_link><?php echo $product->getImageUrl(); ?></g:image_link>
+    </item>
+<?php endforeach; ?>
+  </channel>
+</rss>

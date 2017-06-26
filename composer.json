@@ -1,0 +1,34 @@
+{
+    "name": "lcbrq/magento2-feeds",
+    "description": "Customized datafeeds module for Magento2",
+    "require": {
+        "php": ">=5.5.0",
+        "magento/framework": ">=100.0.0",
+        "magento/magento-composer-installer": "*"
+    },
+     "authors": [
+        {
+            "name": "Silpion Tomasz Gregorczyk",
+            "email": "tom@lcbrq.com"
+        }
+    ],
+    "type": "magento2-module",
+    "version": "beta",
+    "license": [
+        "OSL"
+    ],
+    "extra": {
+        "map": [
+            [
+                "*",
+                "LCB/Feeds"
+            ]
+        ]
+    },
+      "autoload": {
+        "files": ["registration.php"],
+        "psr-4": {
+            "LCB\\Feeds\\": ""
+        }
+    }
+}
