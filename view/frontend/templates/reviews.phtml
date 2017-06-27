@@ -1,0 +1,44 @@
+<?php
+/**
+ * Customizable datafeeds extension for Magento 2
+ *
+ * @category   LCB
+ * @package    LCB_Feeds
+ * @author     Silpion Tomasz Gregorczyk <tom@leftcurlybracket.com>
+ * 
+ * @var \LCB\Feeds\Block\Feed $block 
+ */
+echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
+?>
+<feed xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.google.com/shopping/reviews/schema/product/2.1/product_reviews.xsd">
+    <reviews>
+        <?php
+        foreach ($block->getReviews() as $_review):
+            $review = $block->setReview($_review);
+            ?>
+            <review>
+                <review_id><?php echo $review->getId(); ?></review_id>
+                <reviewer>
+                    <name><?php echo $review->getNickname(); ?></name>
+                </reviewer>
+                <review_timestamp><?php echo $review->getTimestamp(); ?></review_timestamp>
+                <content><![CDATA[<?php echo $review->getDetail(); ?>]]></content>
+                <review_url type="singleton"/>
+                <products>
+                    <?php foreach ($review->getProductCollection() as $_product): ?>
+                        <product>
+                        <product_ids>
+                            <mpns>
+                                <mpn><?php echo $_product->getSku(); ?></mpn>
+                            </mpns>
+                        </product_ids>
+                        <product_name><?php echo $_product->getName(); ?></product_name>
+                        <product_url><?php echo $_product->getProductUrl(); ?></product_url>
+                        </product>
+                    <?php endforeach; ?>
+                </products>
+                <is_spam>false</is_spam>
+            </review>
+        <?php endforeach; ?>
+    </reviews>
+</feed>

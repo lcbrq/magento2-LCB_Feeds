@@ -10,12 +10,17 @@
 
 namespace LCB\Feeds\Block;
 
-class Feed extends \Magento\Catalog\Block\Product\AbstractProduct {
+class Product extends \Magento\Catalog\Block\Product\AbstractProduct {
 
     /**
-     * @var \LCB\Feeds\Model\Product $productModel
+     * @var \LCB\Feeds\Model\Product
      */
     protected $productModel;
+    
+    /**
+     * @var \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory
+     */
+    public $productCollectionFactory;
     
     /**
      * @param \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollectionFactory
@@ -25,7 +30,7 @@ class Feed extends \Magento\Catalog\Block\Product\AbstractProduct {
      */
     public function __construct(
     \Magento\Catalog\Block\Product\Context $context, 
-    \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollectionFactory, 
+    \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollectionFactory,
     \LCB\Feeds\Model\Product $productModel,        
     \Magento\Catalog\Model\Product\Attribute\Source\Status $productStatus, 
     \Magento\Catalog\Model\Product\Visibility $productVisibility, 
@@ -38,7 +43,7 @@ class Feed extends \Magento\Catalog\Block\Product\AbstractProduct {
         $this->productVisibility = $productVisibility;
         parent::__construct($context, $data);
     }
-
+    
     /**
      * @return \Magento\Framework\DataObject[]
      * @throws \Magento\Framework\Exception\LocalizedException
@@ -55,7 +60,7 @@ class Feed extends \Magento\Catalog\Block\Product\AbstractProduct {
 
         return $collection->getItems();
     }
-    
+
     /**
      * Convert product model into product feed model
      * 
