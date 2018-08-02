@@ -12,11 +12,24 @@ namespace LCB\Feeds\Controller\Review;
 
 use Magento\Framework\Controller\ResultFactory;
 
-class Index extends \Magento\Framework\App\Action\Action
+class Index extends \LCB\Feeds\Controller\Feed
 {
+
+    /**
+     * Ceneo feed action
+     *
+     * @return \Magento\Framework\Controller\ResultInterface
+     */
     public function execute()
     {
-        header("Content-type: text/xml");
-        return $this->resultFactory->create(ResultFactory::TYPE_LAYOUT);
+        $this->getResponse()->setHeader('Content-Type', 'text/xml', true);
+
+        $block = $this->resultPageFactory->create()->getLayout()
+                ->createBlock('LCB\Feeds\Block\Review')
+                ->setTemplate('LCB_Feeds::reviews.phtml')
+                ->toHtml();
+
+        $this->getResponse()->setBody($block);
     }
+
 }

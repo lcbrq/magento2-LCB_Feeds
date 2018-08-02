@@ -1,5 +1,0 @@
-<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../../../lib/internal/Magento/Framework/View/Layout/etc/page_configuration.xsd">
-    <container name="root">
-        <block class="LCB\Feeds\Block\Product" name="feeds_google" template="LCB_Feeds::google.phtml"/>
-    </container>
-</page>
