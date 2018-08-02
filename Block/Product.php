@@ -57,6 +57,7 @@ class Product extends \Magento\Catalog\Block\Product\AbstractProduct {
         $collection->joinAttribute('visibility', 'catalog_product/visibility', 'entity_id', null, 'inner');
         $collection->addAttributeToFilter('status', ['in' => $this->productStatus->getVisibleStatusIds()])
                 ->addAttributeToFilter('visibility', ['in' => $this->productVisibility->getVisibleInSiteIds()]);
+        $collection->addStoreFilter($this->_storeManager->getStore()->getId());      
 
         return $collection->getItems();
     }

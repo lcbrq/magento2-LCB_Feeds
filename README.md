@@ -1,4 +1,4 @@
-## Customizable datafeeds module for Magento 2 (beta)
+## Customizable datafeeds module for Magento 2
 
 The structure of the module is rather unique due to phtml usage for xml feeds render.  
 This was done on purpose to allow easy per store adjustment from frontend area.  
