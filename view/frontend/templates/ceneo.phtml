@@ -8,25 +8,26 @@
  * 
  * @var \LCB\Feeds\Block\Feed $block 
  */
-echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"; 
+echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
 ?>
 <offers xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1">
-<?php foreach($block->getProducts() as $_product): 
-    $product = $block->setProduct($_product);
-    ?>
-    <o id="<?= $product->getName(); ?>" url="<?= $product->getProductUrl(); ?>" price="<?= $product->getPrice(); ?>" avail="<?= (int) $product->getAvailability(); ?>" stock="<?= $product->getQty(); ?>" weight="<?= (int) $product->getWeight(); ?>">
-    <cat><?= $product->getCategory(); ?></cat>
-    <name><?= $product->getName(); ?></name>
-    <imgs>
-      <main url="<?= $product->getImageUrl(); ?>" />
-      <?php foreach($product->getImages() as $image): ?>
-        <i url="<?= $image->getUrl(); ?>" />
-      <?php endforeach; ?>
-    </imgs>
-    <attrs>
-      <a name="Producent"><?= $product->getAttributeText('manufacturer'); ?>"></a>
-    </attrs>
-    <desc><?= $product->getShortDescription(); ?></desc>
-  </o>
-<?php endforeach; ?>
+    <?php
+    foreach ($block->getProducts() as $_product):
+        $product = $block->setProduct($_product);
+        ?>
+        <o id="<?= $product->getId(); ?>" url="<?= $product->getProductUrl(); ?>" price="<?= $product->getPrice(); ?>" avail="<?= (int) $product->getAvailability(); ?>" stock="<?= $product->getQty(); ?>" weight="<?= (int) $product->getWeight(); ?>">
+            <cat><![CDATA[<?= $product->getCeneoCategory(); ?>]]></cat>
+            <name><![CDATA[<?= $product->getName(); ?>]]></name>
+            <imgs>
+                <main url="<?= $product->getImageUrl(); ?>" />
+                <?php foreach ($product->getImages() as $image): ?>
+                    <i url="<?= $image->getUrl(); ?>" />
+                <?php endforeach; ?>
+            </imgs>
+            <attrs>
+                <a name="Producent"><?= $product->getAttributeText('manufacturer'); ?>"></a>
+            </attrs>
+            <desc><![CDATA[<?= $product->getShortDescription(); ?>]]></desc>
+        </o>
+    <?php endforeach; ?>
 </offers>

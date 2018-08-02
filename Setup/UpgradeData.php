@@ -34,15 +34,15 @@ class UpgradeData implements UpgradeDataInterface
 
             $eavSetup->addAttribute(
                     \Magento\Catalog\Model\Category::ENTITY, 'ceneo_category', [
-                        'type' => 'int',
+                        'type' => 'text',
                         'label' => 'Ceneo Category',
                         'input' => 'select',
                         'required' => false,
                         'sort_order' => 949,
                         'global' => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_STORE,
-                        'wysiwyg_enabled' => true,
-                        'is_html_allowed_on_front' => true,
-                        'group' => 'General Information',
+                        'wysiwyg_enabled' => false,
+                        'is_html_allowed_on_front' => false,
+                        'group' => 'SEO',
                     ]
             );
         }

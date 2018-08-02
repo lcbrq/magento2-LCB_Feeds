@@ -16,11 +16,6 @@ class CeneoCategory extends AbstractSource
 {
     
     /**
-     * @var string
-     */
-    const MODULE_NAME = 'LCB_Feeds';
-    
-    /**
      * @var \Magento\Framework\Module\Dir\Reader
      */
     protected $moduleReader;
@@ -51,11 +46,7 @@ class CeneoCategory extends AbstractSource
             return $this->categories;
         }
 
-        $sourceDir = $this->moduleReader->getModuleDir(
-                \Magento\Framework\Module\Dir::MODULE_ETC_DIR, self::MODULE_NAME
-        );
-
-        $ceneoXml = simplexml_load_file($sourceDir . '/source/ceneo.xml');
+        $ceneoXml = $this->getCeneoXml();
         $categories = ['label' => 'Please select', 'value' => ''];
 
         foreach ($ceneoXml as $category) {
@@ -97,6 +88,18 @@ class CeneoCategory extends AbstractSource
         }
 
         return $categories;
+    }
+    
+    /**
+     * @return SimpleXMLElement
+     */
+    public function getCeneoXml()
+    {
+        $sourceDir = $this->moduleReader->getModuleDir(
+                \Magento\Framework\Module\Dir::MODULE_ETC_DIR, 'LCB_Feeds'
+        );
+        
+        return simplexml_load_file($sourceDir . '/source/ceneo.xml');
     }
 
 }

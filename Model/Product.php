@@ -92,7 +92,7 @@ class Product extends \Magento\Catalog\Model\Product {
      */
     public function getName()
     {
-        return $this->escaper->escapeHtml(parent::getName());
+        return $this->escaper->escapeHtml(preg_replace('/[\x00-\x1F\x7F]/', '', parent::getName()));
     }
 
     /**
@@ -215,7 +215,7 @@ class Product extends \Magento\Catalog\Model\Product {
     public function getCeneoCategory()
     {
 
-        $category = '';
+        $ceneoCategory = '';
 
         if (!$this->getCategoryIds()) {
             return '';
