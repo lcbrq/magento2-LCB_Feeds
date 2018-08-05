@@ -24,6 +24,9 @@ echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
       <g:condition><?= $product->getCondition(); ?></g:condition>
       <g:availability><?= $product->getAvailability() ? 'in stock' : 'out of stock'; ?></g:availability>
       <g:price><?= $product->getPriceWithCurrency(); ?></g:price>
+<?php if($product->hasSpecialPrice()): ?>
+      <g:sale_price><?= $product->getSpecialPriceWithCurrency(); ?></g:sale_price>
+<?php endif; ?>
       <g:brand><?= $product->getBrand(); ?></g:brand>
       <g:image_link><?= $product->getImageUrl(); ?></g:image_link>
     </item>

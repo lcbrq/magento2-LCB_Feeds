@@ -177,6 +177,16 @@ class Product extends \Magento\Catalog\Model\Product {
     }
 
     /**
+     * Check if product has special price
+     * 
+     * @return bool
+     */
+    public function hasSpecialPrice()
+    {
+        return $this->getPrice() > $this->getFinalPrice();
+    }
+    
+    /**
      * Get product price as string with currency
      * 
      * @return string
@@ -184,6 +194,16 @@ class Product extends \Magento\Catalog\Model\Product {
     public function getPriceWithCurrency()
     {
         return $this->priceHelper->currency(parent::getPrice(), true, false);
+    }
+    
+    /**
+     * Get product price as string with currency
+     * 
+     * @return string
+     */
+    public function getSpecialPriceWithCurrency()
+    {
+        return $this->priceHelper->currency(parent::getSpecialPrice(), true, false);
     }
 
     /**
