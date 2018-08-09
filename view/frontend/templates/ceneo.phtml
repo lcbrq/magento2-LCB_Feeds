@@ -15,7 +15,7 @@ echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
     foreach ($block->getProducts() as $_product):
         $product = $block->setProduct($_product);
         ?>
-        <o id="<?= $product->getId(); ?>" url="<?= $product->getProductUrl(); ?>" price="<?= $product->getPrice(); ?>" avail="<?= (int) $product->getAvailability(); ?>" stock="<?= $product->getQty(); ?>" weight="<?= (int) $product->getWeight(); ?>">
+        <o id="<?= $product->getId(); ?>" url="<?= $product->getProductUrl(); ?>" price="<?= $product->getPrice(); ?>" avail="<?= $product->getAvailability() ? 3 : 90; ?>" stock="<?= $product->getQty(); ?>" weight="<?= (int) $product->getWeight(); ?>">
             <cat><![CDATA[<?= $product->getCeneoCategory(); ?>]]></cat>
             <name><![CDATA[<?= $product->getName(); ?>]]></name>
             <imgs>
