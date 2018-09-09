@@ -41,6 +41,11 @@ class Product extends \Magento\Catalog\Model\Product {
     public $priceHelper;
     
     /**
+     * @var Magento\Catalog\Helper\Image
+     */
+    public $imageHelper;
+    
+    /**
      * Category model for feed
      * 
      * @var \Magento\Catalog\Model\Category
@@ -53,13 +58,6 @@ class Product extends \Magento\Catalog\Model\Product {
      * @var \Magento\Catalog\Model\Product\Gallery\ReadHandler
      */
     public $galleryReadHandler;
-
-    /**
-     * Store data container
-     * 
-     * @var \Magento\Store\Model\Store\Interceptor
-     */
-    public $store;
     
     /**
      * Stock item
@@ -80,9 +78,9 @@ class Product extends \Magento\Catalog\Model\Product {
         $this->filterManager = $objectManager->create('Magento\Framework\Filter\FilterManager');
         $this->stockItemRepository = $objectManager->create('Magento\CatalogInventory\Model\Stock\StockItemRepository');
         $this->priceHelper = $objectManager->create('Magento\Framework\Pricing\Helper\Data');
+        $this->imageHelper = $objectManager->create('Magento\Catalog\Helper\Image');
         $this->categoryModel = $objectManager->create('Magento\Catalog\Model\Category');
         $this->galleryReadHandler = $objectManager->create('Magento\Catalog\Model\Product\Gallery\ReadHandler');
-        $this->store = $objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore();
     }
 
     /**
@@ -205,15 +203,25 @@ class Product extends \Magento\Catalog\Model\Product {
     {
         return $this->priceHelper->currency(parent::getSpecialPrice(), true, false);
     }
+    
+    /**
+     * Get currency code only
+     * 
+     * @return string
+     */
+    public function getCurrencyCode()
+    {
+        return $this->_storeManager->getStore()->getCurrentCurrency()->getCode();
+    }
 
     /**
      * Get product image url
      * 
      * @return string
      */
-    public function getImageUrl()
+    public function getImageUrl($type = 'product_page_main_image_default')
     {
-        return $this->store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $this->getImage();
+        return $this->imageHelper->init($this, $type)->getUrl();
     }
     
     /**
