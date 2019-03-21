@@ -29,6 +29,9 @@ echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
 <?php endif; ?>
       <g:brand><?= $product->getBrand(); ?></g:brand>
       <g:image_link><?= $product->getImageUrl(); ?></g:image_link>
+<?php if($googleCategoryId = $product->getGoogleCategory()): ?>
+      <g:google_product_category><?= $googleCategoryId; ?></g:google_product_category>
+<?php endif; ?>
     </item>
 <?php endforeach; ?>
   </channel>

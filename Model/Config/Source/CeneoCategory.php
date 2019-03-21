@@ -47,10 +47,10 @@ class CeneoCategory extends AbstractSource
         }
 
         $ceneoXml = $this->getCeneoXml();
-        $categories = ['label' => 'Please select', 'value' => ''];
+        $categories = [['label' => __('Please select'), 'value' => '']];
 
         foreach ($ceneoXml as $category) {
-            $categories[] = array('label' => (string) $category->Name, 'value' => (string) $category->Name);
+            $categories[] = ['label' => (string) $category->Name, 'value' => (string) $category->Name];
             $categories = array_merge($categories, $this->appendSubcategories($category, 1, $category->Name));
         }
 

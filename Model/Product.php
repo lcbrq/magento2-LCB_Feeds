@@ -211,7 +211,7 @@ class Product extends \Magento\Catalog\Model\Product {
      */
     public function getCurrencyCode()
     {
-        return $this->_storeManager->getStore()->getCurrentCurrency()->getCode();
+        return $this->_storeManager->getCurrentCurrency()->getCode();
     }
 
     /**
@@ -248,6 +248,7 @@ class Product extends \Magento\Catalog\Model\Product {
         if (!$this->getCategoryIds()) {
             return '';
         }
+
         $categoryIds = array_reverse($this->getCategoryIds());
         foreach ($categoryIds as $categoryId) {
             $ceneoCategory = $this->categoryModel->load($categoryId)->getCeneoCategory();
@@ -257,6 +258,31 @@ class Product extends \Magento\Catalog\Model\Product {
         }
 
         return $ceneoCategory;
+    }
+
+    /**
+     * Get Google category
+     *
+     * @return string
+     */
+    public function getGoogleCategory()
+    {
+
+        $googleCategory = '';
+
+        if (!$this->getCategoryIds()) {
+            return '';
+        }
+
+        $categoryIds = array_reverse($this->getCategoryIds());
+        foreach ($categoryIds as $categoryId) {
+            $googleCategory = $this->categoryModel->load($categoryId)->getGoogleCategory();
+            if ($googleCategory) {
+                break;
+            }
+        }
+
+        return $googleCategory;
     }
 
 }

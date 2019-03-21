@@ -4,12 +4,24 @@
         <field name="ceneo_category">
             <argument name="data" xsi:type="array">
                 <item name="options" xsi:type="object">LCB\Feeds\Model\Config\Source\CeneoCategory</item>
-                <item name="config" xsi:type="array">                    
+                <item name="config" xsi:type="array">
                     <item name="sortOrder" xsi:type="number">1800</item>
                     <item name="dataType" xsi:type="string">text</item>
                     <item name="formElement" xsi:type="string">select</item>
                     <item name="label" xsi:type="string" translate="true">Ceneo Category</item>
                     <item name="source" xsi:type="string">ceneo_category</item>
+                </item>
+            </argument>
+        </field>
+         <field name="google_category">
+             <argument name="data" xsi:type="array">
+                <item name="options" xsi:type="object">LCB\Feeds\Model\Config\Source\GoogleCategory</item>
+                <item name="config" xsi:type="array">
+                    <item name="sortOrder" xsi:type="number">1900</item>
+                    <item name="dataType" xsi:type="string">text</item>
+                    <item name="formElement" xsi:type="string">select</item>
+                    <item name="label" xsi:type="string" translate="true">Google Category</item>
+                    <item name="source" xsi:type="string">google_category</item>
                 </item>
             </argument>
         </field>

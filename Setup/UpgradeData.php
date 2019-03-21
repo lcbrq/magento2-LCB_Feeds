@@ -27,15 +27,31 @@ class UpgradeData implements UpgradeDataInterface
     public function upgrade(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
     {
         $setup->startSetup();
-        
-        if (version_compare($context->getVersion(), '1.0.4') < 0) {
+        $eavSetup = $this->eavSetupFactory->create(['setup' => $setup]);
 
-            $eavSetup = $this->eavSetupFactory->create(['setup' => $setup]);
+        if (version_compare($context->getVersion(), '1.0.4') < 0) {
 
             $eavSetup->addAttribute(
                     \Magento\Catalog\Model\Category::ENTITY, 'ceneo_category', [
                         'type' => 'text',
                         'label' => 'Ceneo Category',
+                        'input' => 'select',
+                        'required' => false,
+                        'sort_order' => 949,
+                        'global' => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_STORE,
+                        'wysiwyg_enabled' => false,
+                        'is_html_allowed_on_front' => false,
+                        'group' => 'SEO',
+                    ]
+            );
+        }
+
+        if (version_compare($context->getVersion(), '1.0.6') < 0) {
+
+            $eavSetup->addAttribute(
+                    \Magento\Catalog\Model\Category::ENTITY, 'google_category', [
+                        'type' => 'text',
+                        'label' => 'Google Category',
                         'input' => 'select',
                         'required' => false,
                         'sort_order' => 949,

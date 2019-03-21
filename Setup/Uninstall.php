@@ -42,6 +42,7 @@ class Uninstall implements \Magento\Framework\Setup\UninstallInterface
         $setup->startSetup();
         $eavSetup = $this->eavSetupFactory->create();
         $eavSetup->removeAttribute(\Magento\Catalog\Model\Category::ENTITY, 'ceneo_category');
+        $eavSetup->removeAttribute(\Magento\Catalog\Model\Category::ENTITY, 'google_category');
         $setup->endSetup();
     }
 
