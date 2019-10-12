@@ -1,0 +1,23 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+
+/** @var \Magento\Backend\Block\Cache\Permissions|null $permissions */
+$permissions = $block->getData('permissions');
+?>
+<?php if ($permissions && $permissions->hasAccessToAdditionalActions()): ?>
+    <div class="additional-cache-management">
+        <?php if ($permissions->hasAccessToFlushJsCss()): ?>
+            <p>
+                <button onclick="setLocation('<?= $block->escapeJs($block->getCleanFeedsUrl()); ?>')" type="button">
+                    <?= $block->escapeHtml(__('Flush Feeds Cache')); ?>
+                </button>
+                <span><?= $block->escapeHtml(__('Google and Ceneo Products Feed Output')) ?></span>
+            </p>
+        <?php endif; ?>
+    </div>
+<?php endif; ?>
