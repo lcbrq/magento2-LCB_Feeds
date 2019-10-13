@@ -12,19 +12,6 @@ namespace LCB\Feeds\Model;
 
 class Product extends \Magento\Catalog\Model\Product {
 
-    /**
-     * Escaper
-     *
-     * @var \Magento\Framework\Escaper
-     */
-    public $escaper;
-    
-    /**
-     * Filter manager
-     * 
-     * @var \Magento\Framework\Filter\FilterManager
-     */
-    public $filterManager;
 
     /**
      * Stock item data container
@@ -66,41 +53,67 @@ class Product extends \Magento\Catalog\Model\Product {
      */
     public $stock;
 
+   /**
+    * MSI Stock Id
+    *
+    * @param int
+    * @since 2.3.0
+    */
+    protected $msiStockId;
+
+   /**
+    * MSI Stock Data Item Interface
+    *
+    * @since 2.3.0
+    * @var \Magento\InventorySalesApi\Api\GetStockItemDataInterface
+    */
+    protected $msiStockDataInterface;
+
+   /**
+    * MSI Stock Data
+    *
+    * @since 2.3.0
+    * @var array
+    */
+    protected $msiStockData = array();
+
     /**
      * Extend class with additional methods
      */
     protected function _construct()
     {
         parent::_construct();
-        
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();        
-        $this->escaper = $objectManager->create('Magento\Framework\Escaper');
-        $this->filterManager = $objectManager->create('Magento\Framework\Filter\FilterManager');
-        $this->stockItemRepository = $objectManager->create('Magento\CatalogInventory\Model\Stock\StockItemRepository');
-        $this->priceHelper = $objectManager->create('Magento\Framework\Pricing\Helper\Data');
-        $this->imageHelper = $objectManager->create('Magento\Catalog\Helper\Image');
-        $this->categoryModel = $objectManager->create('Magento\Catalog\Model\Category');
-        $this->galleryReadHandler = $objectManager->create('Magento\Catalog\Model\Product\Gallery\ReadHandler');
+
+        $this->stockItemRepository = $this->getData('stockItemRepository');
+        $this->priceHelper = $this->getData('priceHelper');
+        $this->imageHelper = $this->getData('imageHelper');
+        $this->categoryModel = $this->getData('categoryModel');
+        $this->galleryReadHandler = $this->getData('galleryReadHandler');
+
+        try {
+            if (class_exists('\Magento\InventoryCatalog\Model\GetStockIdForCurrentWebsite')) {
+                $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                $this->msiStockId = $objectManager->get('\Magento\InventoryCatalog\Model\GetStockIdForCurrentWebsite')->execute();
+                $this->msiStockDataInterface = $objectManager->get('\Magento\InventorySalesApi\Model\GetStockItemDataInterface');
+            }
+        } catch(\Exception $e) {}
+
     }
 
     /**
-     * Get escaped product name
-     *
      * @return string
      */
     public function getName()
     {
-        return $this->escaper->escapeHtml(preg_replace('/[\x00-\x1F\x7F]/', '', parent::getName()));
+        return parent::getName();
     }
 
     /**
-     * Get escaped product description limited to 5000 chars
-     * 
      * @return string
      */
     public function getDescription()
     {
-        return $this->filterManager->truncate($this->escaper->escapeHtml(parent::getDescription()), ['length' => 5000]);
+        return parent::getDescription();
     }
 
     /**
@@ -125,14 +138,27 @@ class Product extends \Magento\Catalog\Model\Product {
     public function getStock() 
     {
     
-        if(!$this->stock) {
+        if (!$this->stock) {
             $this->stock = $this->stockItemRepository->get($this->getId());
         }
         
         return $this->stock;
         
     }
-    
+
+   /**
+    * Get MSI stock data
+    *
+    */
+    public function getMsiStock()
+    {
+        if (!$this->msiStockData && $this->msiStockId && $this->msiStockDataInterface) {
+            $this->msiStockData = $this->msiStockDataInterface->execute($this->getSku(), $this->msiStockId);
+        }
+
+        return $this->msiStockData;
+    }
+
     /**
      * Get product quantity
      * 
@@ -142,6 +168,11 @@ class Product extends \Magento\Catalog\Model\Product {
     {
         
         $qty = 0;
+
+        $msiData = $this->getMsiStock();
+        if ($msiData && isset($msiData['quantity'])) {
+            return $msiData['quantity'];
+        }
 
         try {
           $qty = $this->getStock()->getQty();
@@ -162,8 +193,12 @@ class Product extends \Magento\Catalog\Model\Product {
         
         $availability = false;
 
+        $msiData = $this->getMsiStock();
+        if ($msiData && isset($msiData['is_salable'])) {
+            return (bool) $msiData['is_salable'];
+        }
+
         try {
-            $stockData = $this->stockItemRepository->get($this->getId());
             if ($this->getStock()->getIsInStock()) {
                 $availability = true;
             }
@@ -243,7 +278,9 @@ class Product extends \Magento\Catalog\Model\Product {
     public function getCeneoCategory()
     {
 
-        $ceneoCategory = '';
+        if ($ceneoCategory = (string) $this->getData('ceneo_category')) {
+            return $ceneoCategory;
+        }
 
         if (!$this->getCategoryIds()) {
             return '';
@@ -251,7 +288,12 @@ class Product extends \Magento\Catalog\Model\Product {
 
         $categoryIds = array_reverse($this->getCategoryIds());
         foreach ($categoryIds as $categoryId) {
-            $ceneoCategory = $this->categoryModel->load($categoryId)->getCeneoCategory();
+            $categoryModel = $this->categoryModel;
+            if (!$categoryModel->getResource() instanceof \Magento\Catalog\Model\ResourceModel\Category\Flat) {
+                $ceneoCategory = $categoryModel->getResource()->getAttributeRawValue($categoryId, 'ceneo_category', $this->getStoreId());
+            } else {
+                $ceneoCategory = $categoryModel->load($categoryId)->getCeneoCategory();
+            }
             if ($ceneoCategory) {
                 break;
             }
@@ -268,7 +310,9 @@ class Product extends \Magento\Catalog\Model\Product {
     public function getGoogleCategory()
     {
 
-        $googleCategory = '';
+        if ($googleCategory = (string) $this->getData('google_category')) {
+            return $googleCategory;
+        }
 
         if (!$this->getCategoryIds()) {
             return '';
@@ -276,13 +320,59 @@ class Product extends \Magento\Catalog\Model\Product {
 
         $categoryIds = array_reverse($this->getCategoryIds());
         foreach ($categoryIds as $categoryId) {
-            $googleCategory = $this->categoryModel->load($categoryId)->getGoogleCategory();
+            $categoryModel = $this->categoryModel;
+            if (!$categoryModel->getResource() instanceof \Magento\Catalog\Model\ResourceModel\Category\Flat) {
+                $googleCategory = $categoryModel->getResource()->getAttributeRawValue($categoryId, 'google_category', $this->getStoreId());
+            } else {
+                $googleCategory = $categoryModel->load($categoryId)->getGoogleCategory();
+            }
             if ($googleCategory) {
                 break;
             }
         }
 
         return $googleCategory;
+    }
+
+    /**
+     * Get Google product type from store categories
+     *
+     * @return string
+     */
+    public function getGoogleProductType() {
+
+        if ($googleProductType = (string) $this->getData('google_product_type')) {
+            return $googleProductType;
+        }
+
+        if (!$this->getCategoryIds()) {
+            return '';
+        }
+
+        $categoryIds = array_reverse($this->getCategoryIds());
+        $categoryNames = [];
+        foreach ($categoryIds as $categoryId) {
+            $category = $this->categoryModel->load($categoryId);
+            $categories = $category->getParentCategories();
+            foreach ($categories as $category) {
+                $categoryNames[] = $category->getName();
+            }
+            break;
+        }
+
+        $googleProductType = implode($categoryNames, ' > ');
+        return $googleProductType;
+
+    }
+
+    /**
+     * Get product visibility in feed
+     *
+     * @return boolean
+     */
+    public function isVisibleInFeed()
+    {
+        return $this->isVisibleInCatalog();
     }
 
 }

@@ -23,6 +23,7 @@ class Index extends \LCB\Feeds\Controller\Feed
     public function execute()
     {
         $this->getResponse()->setHeader('Content-Type', 'text/xml', true);
+        $this->getResponse()->setHeader('X-Magento_Tags', 'FEEDS');
 
         $block = $this->resultPageFactory->create()->getLayout()
                 ->createBlock('LCB\Feeds\Block\Review')
