@@ -226,9 +226,9 @@ class Product extends \Magento\Catalog\Model\Product {
      */
     public function getPriceWithCurrency()
     {
-        return $this->priceHelper->currency(parent::getPrice(), true, false);
+        return str_replace("\xc2\xa0", ' ', $this->priceHelper->currency(parent::getPrice(), true, false));
     }
-    
+
     /**
      * Get product price as string with currency
      * 
@@ -236,9 +236,9 @@ class Product extends \Magento\Catalog\Model\Product {
      */
     public function getSpecialPriceWithCurrency()
     {
-        return $this->priceHelper->currency(parent::getSpecialPrice(), true, false);
+        return str_replace("\xc2\xa0", ' ', $this->priceHelper->currency(parent::getSpecialPrice(), true, false));
     }
-    
+
     /**
      * Get currency code only
      * 

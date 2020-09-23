@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <type name="LCB\Feeds\Model\Product">
+        <arguments>
+            <argument name="data" xsi:type="array">
+                <item name="stockItemRepository" xsi:type="object">Magento\CatalogInventory\Model\Stock\StockItemRepository</item>
+                <item name="priceHelper" xsi:type="object">Magento\Framework\Pricing\Helper\Data</item>
+                <item name="imageHelper" xsi:type="object">Magento\Catalog\Helper\Image</item>
+                <item name="categoryModel" xsi:type="object">Magento\Catalog\Model\Category</item>
+                <item name="galleryReadHandler" xsi:type="object">Magento\Catalog\Model\Product\Gallery\ReadHandler</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="LCB\Feeds\Model\Product">
+        <plugin name="feedProductModelPlugin" type="LCB\Feeds\Plugin\Product" sortOrder="1"/>
+    </type>
+
+    <type name="Magento\Framework\Console\CommandList">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="lcb_feeds_generate" xsi:type="object">LCB\Feeds\Console\Command\Generate</item>
+            </argument>
+        </arguments>
+    </type>
+
+</config>

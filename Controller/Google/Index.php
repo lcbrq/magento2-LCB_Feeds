@@ -25,12 +25,16 @@ class Index extends \LCB\Feeds\Controller\Feed
         $this->getResponse()->setHeader('Content-Type', 'text/xml', true);
         $this->getResponse()->setHeader('X-Magento_Tags', 'FEEDS');
 
-        $block = $this->resultPageFactory->create()->getLayout()
+        if ($feed = $this->getFromCache('google')) {
+            return $this->getResponse()->setBody($feed);
+        }
+
+        $feed = $this->resultPageFactory->create()->getLayout()
                 ->createBlock('LCB\Feeds\Block\Product')
                 ->setTemplate('LCB_Feeds::google.phtml')
                 ->toHtml();
 
-        $this->getResponse()->setBody($block);
+        $this->getResponse()->setBody($feed);
     }
 
 }

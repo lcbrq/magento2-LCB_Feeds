@@ -42,7 +42,7 @@ class Product extends \Magento\Catalog\Block\Product\AbstractProduct
      * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function __construct(
-        \Magento\Catalog\Block\Product\Context $context,
+        \Magento\Catalog\Block\Product\Context $context, 
         \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollectionFactory,
         \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory $categoryCollectionFactory,
         \LCB\Feeds\Model\Product $productModel,
@@ -118,7 +118,7 @@ class Product extends \Magento\Catalog\Block\Product\AbstractProduct
             }
         }
 
-        $googleProductType = '';
+        $googleProductTypes = [];
         $googleCategory = '';
         $ceneoCategory = '';
         $categoryIds = array_reverse($product->getCategoryIds());
@@ -126,16 +126,15 @@ class Product extends \Magento\Catalog\Block\Product\AbstractProduct
         foreach ($categoryIds as $categoryId) {
             if (isset($this->categoryData[$categoryId])) {
                 $category = $this->categoryData[$categoryId];
-                if (!$googleProductType) {
-                    $categoryNames = [];
-                    $categoryPathIds = array_reverse(explode(',', $category->getPathInStore()));
-                    foreach ($categoryPathIds as $parentCategoryId) {
-                        if (isset($this->categoryData[$parentCategoryId])) {
-                            $categoryNames[] = $this->categoryData[$parentCategoryId]->getName();
-                        }
+                $categoryNames = [];
+                $categoryPathIds = array_reverse(explode(',', $category->getPathInStore()));
+                foreach ($categoryPathIds as $parentCategoryId) {
+                    if (isset($this->categoryData[$parentCategoryId])) {
+                        $categoryNames[] = $this->categoryData[$parentCategoryId]->getName();
                     }
-                    $googleProductType = implode($categoryNames, ' > ');
                 }
+                $googleProductTypes[] = implode($categoryNames, ' > ');
+
                 if (!$googleCategory) {
                     $googleCategory = $category->getGoogleCategory();
                 }
@@ -144,6 +143,11 @@ class Product extends \Magento\Catalog\Block\Product\AbstractProduct
                 }
             }
         }
+
+        usort($googleProductTypes, function($a, $b) {
+            return strlen($b) - strlen($a);
+        });
+        $googleProductType = reset($googleProductTypes);
 
         $product->setData('google_product_type', $googleProductType);
         $product->setData('google_category', $googleCategory);
