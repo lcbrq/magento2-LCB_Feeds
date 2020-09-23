@@ -10,13 +10,14 @@
 
 namespace LCB\Feeds\Block;
 
-class Review extends \Magento\Review\Block\Product\Review {
+class Review extends \Magento\Review\Block\Product\Review
+{
 
     /**
      * @var \LCB\Feeds\Model\Review $reviewModel
      */
     protected $_reviewModel;
-    
+
     /**
      * Review resource model
      *
@@ -42,16 +43,16 @@ class Review extends \Magento\Review\Block\Product\Review {
         $this->_reviewModel = $reviewModel;
         parent::__construct($context, $registry, $collectionFactory, $data);
     }
-    
+
     /**
      * @return \Magento\Framework\DataObject[]
      * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function getReviews()
     {
-       $collection = $this->_reviewsColFactory->create()->addStoreFilter(
-            $this->_storeManager->getStore()->getId()
-        )->addStatusFilter(
+        $collection = $this->_reviewsColFactory->create()->addStoreFilter(
+           $this->_storeManager->getStore()->getId()
+       )->addStatusFilter(
             \Magento\Review\Model\Review::STATUS_APPROVED
         )->addRateVotes();
 
@@ -60,12 +61,11 @@ class Review extends \Magento\Review\Block\Product\Review {
 
     /**
      * Convert review model into review feed model
-     * 
+     *
      * @return \LCB\Feeds\Model\Review
      */
     public function setReview(\Magento\Review\Model\Review $review)
     {
         return $this->_reviewModel->setData($review->getData());
     }
-
 }

@@ -2,9 +2,9 @@
 
 namespace LCB\Feeds\Controller\Adminhtml\Cache;
 
-use Magento\Framework\Controller\ResultFactory;
-use Magento\Backend\App\Action;
 use LCB\Cache\Model\Cache;
+use Magento\Backend\App\Action;
+use Magento\Framework\Controller\ResultFactory;
 
 /**
  * Customizable datafeeds extension for Magento 2
@@ -28,8 +28,7 @@ class GenerateFeeds extends \Magento\Backend\App\Action
     public function __construct(
         Action\Context $context,
         \LCB\Feeds\Model\Cache $cache
-    )
-    {
+    ) {
         parent::__construct($context);
         $this->cache = $cache;
     }

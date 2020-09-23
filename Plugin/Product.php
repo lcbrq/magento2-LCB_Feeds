@@ -61,5 +61,4 @@ class Product
     {
         return $this->filterManager->truncate($this->escaper->escapeHtml($description), ['length' => 5000]);
     }
-
 }

@@ -17,7 +17,7 @@ class Product extends \Magento\Catalog\Block\Product\AbstractProduct
      * @var \LCB\Feeds\Model\Product
      */
     protected $productModel;
-    
+
     /**
      * @var \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory
      */
@@ -42,15 +42,14 @@ class Product extends \Magento\Catalog\Block\Product\AbstractProduct
      * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function __construct(
-        \Magento\Catalog\Block\Product\Context $context, 
+        \Magento\Catalog\Block\Product\Context $context,
         \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollectionFactory,
         \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory $categoryCollectionFactory,
         \LCB\Feeds\Model\Product $productModel,
         \Magento\Catalog\Model\Product\Attribute\Source\Status $productStatus,
         \Magento\Catalog\Model\Product\Visibility $productVisibility,
         array $data = []
-    )
-    {
+    ) {
         $this->productCollectionFactory = $productCollectionFactory;
         $this->categoryCollectionFactory = $categoryCollectionFactory;
         $this->productModel = $productModel;
@@ -58,7 +57,7 @@ class Product extends \Magento\Catalog\Block\Product\AbstractProduct
         $this->productVisibility = $productVisibility;
         parent::__construct($context, $data);
     }
-    
+
     /**
      * @return \Magento\Framework\DataObject[]
      * @throws \Magento\Framework\Exception\LocalizedException
@@ -72,7 +71,7 @@ class Product extends \Magento\Catalog\Block\Product\AbstractProduct
         $collection->joinAttribute('visibility', 'catalog_product/visibility', 'entity_id', null, 'inner');
         $collection->addAttributeToFilter('status', ['in' => $this->productStatus->getVisibleStatusIds()])
                 ->addAttributeToFilter('visibility', ['in' => $this->productVisibility->getVisibleInSiteIds()]);
-        $collection->addStoreFilter($this->_storeManager->getStore()->getId());      
+        $collection->addStoreFilter($this->_storeManager->getStore()->getId());
 
         return $collection->getItems();
     }
@@ -85,13 +84,13 @@ class Product extends \Magento\Catalog\Block\Product\AbstractProduct
     {
         /** @var \Magento\Catalog\Model\ResourceModel\Category\Collection $collection */
         $collection = $this->categoryCollectionFactory->create();
-        $collection->addAttributeToSelect(array('name', 'google_category', 'ceneo_category'));
+        $collection->addAttributeToSelect(['name', 'google_category', 'ceneo_category']);
         return $collection;
     }
 
     /**
      * Convert product model into product feed model
-     * 
+     *
      * @return \LCB\Feeds\Model\Product
      */
     public function setProduct(\Magento\Catalog\Model\Product $product)
@@ -144,7 +143,7 @@ class Product extends \Magento\Catalog\Block\Product\AbstractProduct
             }
         }
 
-        usort($googleProductTypes, function($a, $b) {
+        usort($googleProductTypes, function ($a, $b) {
             return strlen($b) - strlen($a);
         });
         $googleProductType = reset($googleProductTypes);
@@ -155,5 +154,4 @@ class Product extends \Magento\Catalog\Block\Product\AbstractProduct
 
         return $product;
     }
-
 }

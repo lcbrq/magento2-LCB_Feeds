@@ -14,12 +14,12 @@ use Magento\Eav\Model\Entity\Attribute\Source\AbstractSource;
 
 class CeneoCategory extends AbstractSource
 {
-    
+
     /**
      * @var \Magento\Framework\Module\Dir\Reader
      */
     protected $moduleReader;
-    
+
     /**
      * @var array
      */
@@ -36,12 +36,11 @@ class CeneoCategory extends AbstractSource
 
     /**
      * Get Ceneo Categories
-     * 
+     *
      * @return array
      */
     public function getAllOptions()
     {
-
         if ($this->categories) {
             return $this->categories;
         }
@@ -55,12 +54,12 @@ class CeneoCategory extends AbstractSource
         }
 
         $this->categories = $categories;
-        
+
         return $this->categories;
     }
 
     /**
-     * 
+     *
      * @param SimpleXmlElement $category
      * @param int $level
      * @param string $path
@@ -68,7 +67,6 @@ class CeneoCategory extends AbstractSource
      */
     public function appendSubcategories($category, $level = 1, $path = null)
     {
-
         $prefix = '';
         $categories = [];
 
@@ -82,24 +80,24 @@ class CeneoCategory extends AbstractSource
             }
             $subcategories = $category->Subcategories->Category;
             foreach ($subcategories as $subcategory) {
-                $categories[] = array('label' => $prefix . (string) $subcategory->Name, 'value' => $path . '/' . (string) $subcategory->Name);
+                $categories[] = ['label' => $prefix . (string) $subcategory->Name, 'value' => $path . '/' . (string) $subcategory->Name];
                 $categories = array_merge($categories, $this->appendSubcategories($subcategory, $level, $path));
             }
         }
 
         return $categories;
     }
-    
+
     /**
      * @return SimpleXMLElement
      */
     public function getCeneoXml()
     {
         $sourceDir = $this->moduleReader->getModuleDir(
-                \Magento\Framework\Module\Dir::MODULE_ETC_DIR, 'LCB_Feeds'
+            \Magento\Framework\Module\Dir::MODULE_ETC_DIR,
+            'LCB_Feeds'
         );
-        
+
         return simplexml_load_file($sourceDir . '/source/ceneo.xml');
     }
-
 }

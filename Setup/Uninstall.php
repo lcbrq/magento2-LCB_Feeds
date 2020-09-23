@@ -10,9 +10,8 @@
 
 namespace LCB\Feeds\Setup;
 
-use Magento\Framework\Setup\UninstallInterface;
-use Magento\Framework\Setup\SchemaSetupInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
+use Magento\Framework\Setup\SchemaSetupInterface;
 
 class Uninstall implements \Magento\Framework\Setup\UninstallInterface
 {
@@ -35,15 +34,13 @@ class Uninstall implements \Magento\Framework\Setup\UninstallInterface
      * @param ModuleContextInterface $context
      */
     public function uninstall(
-            \Magento\Framework\Setup\SchemaSetupInterface $setup, 
-            \Magento\Framework\Setup\ModuleContextInterface $context
-        )
-    {
+        \Magento\Framework\Setup\SchemaSetupInterface $setup,
+        \Magento\Framework\Setup\ModuleContextInterface $context
+    ) {
         $setup->startSetup();
         $eavSetup = $this->eavSetupFactory->create();
         $eavSetup->removeAttribute(\Magento\Catalog\Model\Category::ENTITY, 'ceneo_category');
         $eavSetup->removeAttribute(\Magento\Catalog\Model\Category::ENTITY, 'google_category');
         $setup->endSetup();
     }
-
 }

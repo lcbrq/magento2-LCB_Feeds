@@ -32,7 +32,7 @@ class Cache
      * @var \Magento\PageCache\Model\Cache\Type $cacheType
      */
     protected $cacheType;
-    
+
     /**
      * @param \Magento\Framework\App\CacheInterface $cacheInterface
      * @param \Magento\PageCache\Model\Cache\Type $cacheType
@@ -56,5 +56,4 @@ class Cache
         $this->cacheInterface->remove(self::CODE . '_' . 'FACEBOOK');
         $this->cacheInterface->remove(self::CODE . '_' . 'REVIEWS');
     }
-
 }

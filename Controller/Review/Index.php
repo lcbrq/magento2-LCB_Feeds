@@ -10,8 +10,6 @@
 
 namespace LCB\Feeds\Controller\Review;
 
-use Magento\Framework\Controller\ResultFactory;
-
 class Index extends \LCB\Feeds\Controller\Feed
 {
 
@@ -36,5 +34,4 @@ class Index extends \LCB\Feeds\Controller\Feed
 
         $this->getResponse()->setBody($feed);
     }
-
 }

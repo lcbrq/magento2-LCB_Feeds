@@ -2,8 +2,8 @@
 namespace LCB\Feeds\Controller;
 
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\App\CacheInterface;
+use Magento\Framework\View\Result\PageFactory;
 
 abstract class Feed extends \Magento\Framework\App\Action\Action
 {
@@ -43,6 +43,4 @@ abstract class Feed extends \Magento\Framework\App\Action\Action
     {
         return $this->cache->load(\LCB\Feeds\Model\Cache::CODE . '_' . strtoupper($feedCacheType));
     }
-
 }
-
