@@ -10,7 +10,9 @@
 
 namespace LCB\Feeds\Controller\Review;
 
-class Index extends \LCB\Feeds\Controller\Feed
+use LCB\Feeds\Controller\Feed;
+
+class Index extends Feed
 {
 
     /**

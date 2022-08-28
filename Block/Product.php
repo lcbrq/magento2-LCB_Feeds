@@ -10,23 +10,35 @@
 
 namespace LCB\Feeds\Block;
 
-class Product extends \Magento\Catalog\Block\Product\AbstractProduct
+use LCB\Feeds\Model\Product as ProductModel;
+use LCB\Feeds\Model\ProductFactory as ProductModelFactory;
+use Magento\Catalog\Block\Product\AbstractProduct;
+use Magento\Catalog\Block\Product\Context;
+use Magento\Catalog\Model\Product\Attribute\Source\Status;
+use Magento\Catalog\Model\Product\Visibility;
+use Magento\Catalog\Model\ResourceModel\Category\Collection as CategoryCollection;
+use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
+use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
+use Magento\Framework\DataObject;
+use Magento\Framework\Exception\LocalizedException;
+
+class Product extends AbstractProduct
 {
 
     /**
-     * @var \LCB\Feeds\Model\Product
+     * @var ProductModelFactory
      */
-    protected $productModel;
+    protected ProductModelFactory $productModelFactory;
 
     /**
-     * @var \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory
+     * @var ProductCollectionFactory
      */
-    public $productCollectionFactory;
+    public ProductCollectionFactory $productCollectionFactory;
 
     /**
-     * @var \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory
+     * @var CategoryCollectionFactory
      */
-    public $categoryCollectionFactory;
+    public CategoryCollectionFactory $categoryCollectionFactory;
 
     /**
      * @var array
@@ -35,32 +47,34 @@ class Product extends \Magento\Catalog\Block\Product\AbstractProduct
     public $categoryData;
 
     /**
-     * @param \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollectionFactory
-     * @param \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory $categoryCollectionFactory
-     * @param \Magento\Catalog\Model\Product\Attribute\Source\Status $productStatus
-     * @param \Magento\Catalog\Model\Product\Visibility $productVisibility
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @param Contect $context
+     * @param ProductCollectionFactory $productCollectionFactory
+     * @param CategoryCollectionFactory $categoryCollectionFactory
+     * @param ProductModelFactory $productFactory
+     * @param Status $productStatus
+     * @param Visibility $productVisibility
+     * @throws LocalizedException
      */
     public function __construct(
-        \Magento\Catalog\Block\Product\Context $context,
-        \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollectionFactory,
-        \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory $categoryCollectionFactory,
-        \LCB\Feeds\Model\Product $productModel,
-        \Magento\Catalog\Model\Product\Attribute\Source\Status $productStatus,
-        \Magento\Catalog\Model\Product\Visibility $productVisibility,
+        Context $context,
+        ProductCollectionFactory $productCollectionFactory,
+        CategoryCollectionFactory $categoryCollectionFactory,
+        ProductModelFactory $productModelFactory,
+        Status $productStatus,
+        Visibility $productVisibility,
         array $data = []
     ) {
         $this->productCollectionFactory = $productCollectionFactory;
         $this->categoryCollectionFactory = $categoryCollectionFactory;
-        $this->productModel = $productModel;
+        $this->productModelFactory = $productModelFactory;
         $this->productStatus = $productStatus;
         $this->productVisibility = $productVisibility;
         parent::__construct($context, $data);
     }
 
     /**
-     * @return \Magento\Framework\DataObject[]
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return DataObject[]
+     * @throws LocalizedException
      */
     public function getProducts()
     {
@@ -78,9 +92,9 @@ class Product extends \Magento\Catalog\Block\Product\AbstractProduct
 
     /**
      * @since 1.1.0
-     * @return Magento\Catalog\Model\ResourceModel\Category\Collection
+     * @return CategoryCollection
      */
-    public function getCategories()
+    public function getCategories(): CategoryCollection
     {
         /** @var \Magento\Catalog\Model\ResourceModel\Category\Collection $collection */
         $collection = $this->categoryCollectionFactory->create();
@@ -91,11 +105,11 @@ class Product extends \Magento\Catalog\Block\Product\AbstractProduct
     /**
      * Convert product model into product feed model
      *
-     * @return \LCB\Feeds\Model\Product
+     * @return ProductModel
      */
-    public function setProduct(\Magento\Catalog\Model\Product $product)
+    public function setProduct(\Magento\Catalog\Model\Product $product): ProductModel
     {
-        $product = $this->productModel->setData($product->getData());
+        $product = $this->productModelFactory->create()->setData($product->getData());
         $product = $this->addCategoryData($product);
         return $product;
     }
@@ -104,10 +118,10 @@ class Product extends \Magento\Catalog\Block\Product\AbstractProduct
      * Add calculated category data to products for speedup
      *
      * @since 1.1.0
-     * @param \LCB\Feeds\Model\Product
-     * @return \LCB\Feeds\Model\Product
+     * @param ProductModel
+     * @return ProductModel
      */
-    public function addCategoryData($product)
+    public function addCategoryData(ProductModel $product): ProductModel
     {
         if ($this->categoryData === null) {
             $this->categoryData = [];
@@ -132,7 +146,7 @@ class Product extends \Magento\Catalog\Block\Product\AbstractProduct
                         $categoryNames[] = $this->categoryData[$parentCategoryId]->getName();
                     }
                 }
-                $googleProductTypes[] = implode($categoryNames, ' > ');
+                $googleProductTypes[] = implode(' > ', $categoryNames);
 
                 if (!$googleCategory) {
                     $googleCategory = $category->getGoogleCategory();

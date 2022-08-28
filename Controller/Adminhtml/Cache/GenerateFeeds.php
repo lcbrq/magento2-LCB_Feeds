@@ -2,7 +2,7 @@
 
 namespace LCB\Feeds\Controller\Adminhtml\Cache;
 
-use LCB\Cache\Model\Cache;
+use LCB\Feeds\Model\Cache;
 use Magento\Backend\App\Action;
 use Magento\Framework\Controller\ResultFactory;
 
@@ -13,7 +13,7 @@ use Magento\Framework\Controller\ResultFactory;
  * @package    LCB_Feeds
  * @author     Silpion Tomasz Gregorczyk <tom@leftcurlybracket.com>
  */
-class GenerateFeeds extends \Magento\Backend\App\Action
+class GenerateFeeds extends Action
 {
 
     /**
@@ -27,7 +27,7 @@ class GenerateFeeds extends \Magento\Backend\App\Action
      */
     public function __construct(
         Action\Context $context,
-        \LCB\Feeds\Model\Cache $cache
+        Cache $cache
     ) {
         parent::__construct($context);
         $this->cache = $cache;

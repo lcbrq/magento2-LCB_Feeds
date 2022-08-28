@@ -2,7 +2,7 @@
     "name": "lcbrq/magento2-feeds",
     "description": "Customized datafeeds module for Magento2",
     "require": {
-        "php": ">=5.5.0",
+        "php": ">=7.4.0",
         "magento/framework": ">=100.0.0",
         "magento/magento-composer-installer": "*"
     },
@@ -13,7 +13,7 @@
         }
     ],
     "type": "magento2-module",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "license": [
         "OSL-3.0"
     ],

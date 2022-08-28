@@ -11,14 +11,15 @@
 namespace LCB\Feeds\Model\Config\Source;
 
 use Magento\Eav\Model\Entity\Attribute\Source\AbstractSource;
+use Magento\Framework\Module\Dir\Reader;
 
 class CeneoCategory extends AbstractSource
 {
 
     /**
-     * @var \Magento\Framework\Module\Dir\Reader
+     * @var Reader
      */
-    protected $moduleReader;
+    protected Reader $moduleReader;
 
     /**
      * @var array
@@ -26,10 +27,10 @@ class CeneoCategory extends AbstractSource
     public $categories;
 
     /**
-     * @param \Magento\Framework\Module\Dir\Reader $moduleReader
+     * @param Reader $moduleReader
      */
     public function __construct(
-        \Magento\Framework\Module\Dir\Reader $moduleReader
+        Reader $moduleReader
     ) {
         $this->moduleReader = $moduleReader;
     }

@@ -10,7 +10,11 @@
 
 namespace LCB\Feeds\Model;
 
-class Product extends \Magento\Catalog\Model\Product
+use LCB\Feeds\Model\Config\Source\GoogleCategory;
+use Magento\Catalog\Model\Product as MagentoProduct;
+use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
+
+class Product extends MagentoProduct
 {
 
     /**
@@ -105,7 +109,19 @@ class Product extends \Magento\Catalog\Model\Product
      */
     public function getName()
     {
-        return parent::getName();
+        return htmlspecialchars(parent::getName(), ENT_XML1, 'UTF-8');
+    }
+
+    /**
+     * @return string
+     */
+    public function getShortDescription()
+    {
+        $shortDescription = preg_replace('/[\x00-\x1F\x7F]/', '', parent::getShortDescription());
+        if (strlen($shortDescription > 5000)) {
+            $shortDescription = substr($shortDescription, 0, 4999);
+        }
+        return htmlspecialchars($shortDescription, ENT_XML1, 'UTF-8');
     }
 
     /**
@@ -113,7 +129,7 @@ class Product extends \Magento\Catalog\Model\Product
      */
     public function getDescription()
     {
-        return parent::getDescription();
+        return htmlspecialchars(parent::getDescription(), ENT_XML1, 'UTF-8');
     }
 
     /**
@@ -220,9 +236,34 @@ class Product extends \Magento\Catalog\Model\Product
      *
      * @return string
      */
+    public function getPriceWithoutCurrency()
+    {
+        $price = (float) parent::getPrice();
+        if (!$price && $this->getTypeId() === Configurable::TYPE_CODE) {
+            $configurableInstance = $this->getTypeInstance();
+            $childPrices = [];
+            foreach ($configurableInstance->getUsedProducts($this) as $child) {
+                $childPrices[] = (float) $child->getPrice();
+            }
+            if ($childPrices) {
+                $price = min($childPrices);
+            }
+        }
+
+        return $price;
+    }
+
+
+    /**
+     * Get product price as string with currency
+     *
+     * @return string
+     */
     public function getPriceWithCurrency()
     {
-        return str_replace("\xc2\xa0", ' ', $this->priceHelper->currency(parent::getPrice(), true, false));
+        $price = $this->getPriceWithoutCurrency();
+
+        return $this->formatPriceForFeed($price);
     }
 
     /**
@@ -232,7 +273,31 @@ class Product extends \Magento\Catalog\Model\Product
      */
     public function getSpecialPriceWithCurrency()
     {
-        return str_replace("\xc2\xa0", ' ', $this->priceHelper->currency(parent::getSpecialPrice(), true, false));
+        $price = parent::getSpecialPrice();
+        if (!$price && $this->getTypeId() === Configurable::TYPE_CODE) {
+            $configurableInstance = $this->getTypeInstance();
+            $childPrices = [];
+            foreach ($configurableInstance->getUsedProducts($this) as $child) {
+                $childPrices[] = (float) $child->getSpecialPrice();
+            }
+            if ($childPrices) {
+                $price = min($childPrices);
+            }
+        }
+
+        return $this->formatPriceForFeed($price);
+    }
+
+    /**
+     * Format price
+     *
+     * @param string|float $price
+     * @return string
+     */
+    public function formatPriceForFeed($price)
+    {
+        $formattedPrice = str_replace("\xc2\xa0", ' ', number_format($price, 2, '.', ''));
+        return $formattedPrice . $this->getCurrencyCode();
     }
 
     /**
@@ -242,7 +307,7 @@ class Product extends \Magento\Catalog\Model\Product
      */
     public function getCurrencyCode()
     {
-        return $this->_storeManager->getCurrentCurrency()->getCode();
+        return $this->_storeManager->getStore()->getCurrentCurrency()->getCode();
     }
 
     /**
@@ -354,8 +419,24 @@ class Product extends \Magento\Catalog\Model\Product
             break;
         }
 
-        $googleProductType = implode($categoryNames, ' > ');
+        $googleProductType = implode(' > ', $categoryNames);
         return $googleProductType;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isVisibleInGoogleFeed(): bool
+    {
+        return $this->isVisibleInFeed() && $this->getGoogleCategory() !== GoogleCategory::EXCLUDE_FROM_FEED_VALUE;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isVisibleInFacebookFeed(): bool
+    {
+        return (bool) $this->getPriceWithoutCurrency();
     }
 
     /**

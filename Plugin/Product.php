@@ -2,6 +2,9 @@
 
 namespace LCB\Feeds\Plugin;
 
+use Magento\Framework\Escaper;
+use Magento\Framework\Filter\FilterManager;
+
 /**
  * Customizable datafeeds extension for Magento 2
  *
@@ -17,21 +20,21 @@ class Product
      *
      * @var \Magento\Framework\Escaper
      */
-    public $escaper;
+    public Escaper $escaper;
 
     /**
      * Filter manager
      *
-     * @var \Magento\Framework\Filter\FilterManager
+     * @var FilterManager
      */
-    public $filterManager;
+    public FilterManager $filterManager;
 
     /**
-     * @param \Magento\Framework\Escaper $escaper
+     * @param Escaper $escaper
      * @param \Magento\Framework\Filter\FilterManager $filterManager
      */
     public function __construct(
-        \Magento\Framework\Escaper $escaper,
+        Escaper $escaper,
         \Magento\Framework\Filter\FilterManager $filterManager
     ) {
         $this->escaper = $escaper;

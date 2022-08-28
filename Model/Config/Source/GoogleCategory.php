@@ -10,20 +10,27 @@
 
 namespace LCB\Feeds\Model\Config\Source;
 
+use Magento\Backend\Model\Auth\Session;
 use Magento\Eav\Model\Entity\Attribute\Source\AbstractSource;
+use Magento\Framework\Module\Dir\Reader;
 
 class GoogleCategory extends AbstractSource
 {
 
     /**
-     * @var \Magento\Framework\Module\Dir\Reader
+     * @var string
      */
-    protected $moduleReader;
+    const EXCLUDE_FROM_FEED_VALUE = '-1';
 
     /**
-     * @var \Magento\Backend\Model\Auth\Session $authSession
+     * @var Reader
      */
-    protected $authSession;
+    protected Reader $moduleReader;
+
+    /**
+     * @var Session $authSession
+     */
+    protected Session $authSession;
 
     /**
      * @var array
@@ -31,12 +38,12 @@ class GoogleCategory extends AbstractSource
     public $categories;
 
     /**
-     * @param \Magento\Framework\Module\Dir\Reader $moduleReader
-     * @param \Magento\Backend\Model\Auth\Session $authSession
+     * @param Reader $moduleReader
+     * @param Session $authSession
      */
     public function __construct(
-        \Magento\Framework\Module\Dir\Reader $moduleReader,
-        \Magento\Backend\Model\Auth\Session $authSession
+        Reader $moduleReader,
+        Session $authSession
     ) {
         $this->moduleReader = $moduleReader;
         $this->authSession = $authSession;
@@ -55,7 +62,7 @@ class GoogleCategory extends AbstractSource
 
         $locale = $this->authSession->getUser()->getInterfaceLocale();
         $googleTaxonomy = $this->getGoogleTaxonomy($locale);
-        $categories = [['label' => __('Please select'), 'value' => '']];
+        $categories = [['label' => __('Please select'), 'value' => ''], ['label' => __('Exclude from feed'), 'value' => self::EXCLUDE_FROM_FEED_VALUE]];
 
         $taxonomyArray = [];
         foreach ($googleTaxonomy as $taxonomyRow) {
@@ -85,7 +92,7 @@ class GoogleCategory extends AbstractSource
         }
 
         $taxonomyRaw = file_get_contents($sourceDir . "/source/google/$locale.txt", true);
-        $taxonomyArray = [];
+
         return (array) explode("\n", trim($taxonomyRaw));
     }
 }

@@ -10,6 +10,9 @@
 
 namespace LCB\Feeds\Model;
 
+use Magento\Framework\App\CacheInterface;
+use Magento\PageCache\Model\Cache\Type;
+
 class Cache
 {
 
@@ -24,22 +27,22 @@ class Cache
     const CODE = 'FEEDS';
 
     /**
-     * @var \Magento\Framework\App\CacheInterface $cacheInterface,
+     * @var CacheInterface $cacheInterface,
      */
-    protected $cacheInterface;
+    protected CacheInterface $cacheInterface;
 
     /**
-     * @var \Magento\PageCache\Model\Cache\Type $cacheType
+     * @var Type $cacheType
      */
-    protected $cacheType;
+    protected Type $cacheType;
 
     /**
-     * @param \Magento\Framework\App\CacheInterface $cacheInterface
-     * @param \Magento\PageCache\Model\Cache\Type $cacheType
+     * @param CacheInterface $cacheInterface
+     * @param Type $cacheType
      */
     public function __construct(
-        \Magento\Framework\App\CacheInterface $cacheInterface,
-        \Magento\PageCache\Model\Cache\Type $cacheType
+        CacheInterface $cacheInterface,
+        Type $cacheType
     ) {
         $this->cacheInterface = $cacheInterface;
         $this->cacheType = $cacheType;
@@ -47,8 +50,10 @@ class Cache
 
     /**
      * Clean all feeds cache
+     *
+     * @return void
      */
-    public function cleanAll()
+    public function cleanAll(): void
     {
         $this->cacheType->clean(\Zend_Cache::CLEANING_MODE_MATCHING_TAG, [self::CODE]);
         $this->cacheInterface->remove(self::CODE . '_' . 'GOOGLE');

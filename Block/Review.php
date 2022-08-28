@@ -10,37 +10,48 @@
 
 namespace LCB\Feeds\Block;
 
+use LCB\Feeds\Model\Review as FeedReviewModel;
+use Magento\Framework\Registry;
+use Magento\Framework\View\Element\Template\Context;
+use Magento\Review\Model\ResourceModel\Review\CollectionFactory as ReviewCollectionFactory;
+
 class Review extends \Magento\Review\Block\Product\Review
 {
 
     /**
-     * @var \LCB\Feeds\Model\Review $reviewModel
+     * @var Registry
      */
-    protected $_reviewModel;
+    protected Registry $coreRegistry;
+
+    /**
+     * @var FeedReviewModel
+     */
+    protected FeedReviewModel $reviewModel;
 
     /**
      * Review resource model
      *
-     * @var \Magento\Review\Model\ResourceModel\Review\CollectionFactory
+     * @var ReviewCollectionFactory
      */
-    protected $_reviewsColFactory;
+    protected $reviewsCollectionFactory;
 
     /**
-     * @param \Magento\Framework\View\Element\Template\Context $context
-     * @param \Magento\Framework\Registry $registry
-     * @param \Magento\Review\Model\ResourceModel\Review\CollectionFactory $collectionFactory
+     * @param Context $context
+     * @param Registry $registry
+     * @param FeedReviewModel $reviewModel
+     * @param ReviewCollectionFactory $collectionFactory
      * @param array $data
      */
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
-        \Magento\Framework\Registry $registry,
-        \LCB\Feeds\Model\Review $reviewModel,
-        \Magento\Review\Model\ResourceModel\Review\CollectionFactory $collectionFactory,
+        Context $context,
+        Registry $registry,
+        FeedReviewModel $reviewModel,
+        ReviewCollectionFactory $collectionFactory,
         array $data = []
     ) {
-        $this->_coreRegistry = $registry;
-        $this->_reviewsColFactory = $collectionFactory;
-        $this->_reviewModel = $reviewModel;
+        $this->coreRegistry = $registry;
+        $this->reviewsCollectionFactory = $collectionFactory;
+        $this->reviewModel = $reviewModel;
         parent::__construct($context, $registry, $collectionFactory, $data);
     }
 
@@ -50,9 +61,9 @@ class Review extends \Magento\Review\Block\Product\Review
      */
     public function getReviews()
     {
-        $collection = $this->_reviewsColFactory->create()->addStoreFilter(
-           $this->_storeManager->getStore()->getId()
-       )->addStatusFilter(
+        $collection = $this->reviewsCollectionFactory->create()->addStoreFilter(
+            $this->_storeManager->getStore()->getId()
+        )->addStatusFilter(
             \Magento\Review\Model\Review::STATUS_APPROVED
         )->addRateVotes();
 
@@ -66,6 +77,6 @@ class Review extends \Magento\Review\Block\Product\Review
      */
     public function setReview(\Magento\Review\Model\Review $review)
     {
-        return $this->_reviewModel->setData($review->getData());
+        return $this->reviewModel->setData($review->getData());
     }
 }

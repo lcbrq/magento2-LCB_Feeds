@@ -2,7 +2,19 @@
 
 namespace LCB\Feeds\Console\Command;
 
+use LCB\Feeds\Model\Cache;
+use Magento\Framework\App\Area;
+use Magento\Framework\App\AreaList;
+use Magento\Framework\App\CacheInterface;
+use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Filesystem;
+use Magento\Framework\ObjectManagerInterface;
+use Magento\Framework\View\Layout;
+use Magento\Store\Api\StoreRepositoryInterface;
+use Magento\Store\Model\App\Emulation;
+use Magento\Store\Model\StoreManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -22,74 +34,79 @@ class Generate extends Command
     const FEED_TYPE_ARGUMENT = 'type';
 
     /**
-     * @var \Magento\Framework\View\Layout
+     * @var ObjectManagerInterface
      */
-    protected $layout;
+    protected ObjectManagerInterface $objectManager;
 
     /**
-     * @var \Magento\Store\Api\StoreRepositoryInterface $storeRepository
+     * @var Layout
      */
-    protected $storeRepository;
+    protected Layout $layout;
 
     /**
-     * @var \Magento\Store\Model\StoreManagerInterface
+     * @var StoreRepositoryInterface $storeRepository
      */
-    protected $storeManager;
+    protected StoreRepositoryInterface $storeRepository;
 
     /**
-     * @var \Magento\Framework\Filesystem
+     * @var StoreManagerInterface
      */
-    protected $filesystem;
+    protected StoreManagerInterface $storeManager;
 
     /**
-     * @var \Magento\Framework\App\Filesystem\DirectoryList
+     * @var Filesystem
      */
-    protected $directoryList;
+    protected Filesystem $filesystem;
 
     /**
-     * @var \Magento\Framework\App\State
+     * @var DirectoryList
      */
-    protected $state;
+    protected DirectoryList $directoryList;
 
     /**
-     * @var \\Magento\Framework\App\AreaList
+     * @var State
      */
-    protected $areaList;
+    protected State $state;
 
     /**
-     * @var \Magento\Store\Model\App\Emulation
+     * @var AreaList
      */
-    protected $emulation;
+    protected AreaList $areaList;
 
     /**
-     * @var \Magento\Framework\App\CacheInterface
+     * @var Emulation
      */
-    protected $cache;
+    protected Emulation $emulation;
 
     /**
-     * @param \Magento\Framework\View\Layout $layout
-     * @param \Magento\Store\Api\StoreRepositoryInterface $storeRepository
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
-     * @param \Magento\Framework\Filesystem $filesystem
-     * @param \Magento\Framework\App\Filesystem\DirectoryList $directoryList
-     * @param\ Magento\Framework\App\State $state
-     * @param \Magento\Framework\App\AreaList $areaList
-     * @param \Magento\Store\Model\App\Emulation $emulation
-     * @param \Magento\Framework\App\CacheInterface $cache
+     * @var CacheInterface
+     */
+    protected CacheInterface $cache;
+
+    /**
+     * @param ObjectManagerInterface $layout
+     * @param StoreRepositoryInterface $storeRepository
+     * @param StoreManagerInterface $storeManager
+     * @param Filesystem $filesystem
+     * @param DirectoryList $directoryList
+     * @param State $state
+     * @param AreaList $areaList
+     * @param Emulation $emulation
+     * @param CacheInterface $cache
      */
     public function __construct(
-        \Magento\Framework\View\Layout $layout,
-        \Magento\Store\Api\StoreRepositoryInterface $storeRepository,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Framework\Filesystem $filesystem,
-        \Magento\Framework\App\Filesystem\DirectoryList $directoryList,
-        \Magento\Framework\App\State $state,
-        \Magento\Framework\App\AreaList $areaList,
-        \Magento\Store\Model\App\Emulation $emulation,
-        \Magento\Framework\App\CacheInterface $cache
-    ) {
+            ObjectManagerInterface $objectManager,
+            StoreRepositoryInterface $storeRepository,
+            StoreManagerInterface $storeManager,
+            Filesystem $filesystem,
+            DirectoryList $directoryList,
+            State $state,
+            AreaList $areaList,
+            Emulation $emulation,
+            CacheInterface $cache
+        ) {
         parent::__construct();
-        $this->layout = $layout;
+        $this->objectManager = $objectManager;
         $this->storeRepository = $storeRepository;
         $this->storeManager = $storeManager;
         $this->filesystem = $filesystem;
@@ -151,17 +168,19 @@ class Generate extends Command
     public function generate($storeCode, $type)
     {
         try {
-            $this->state->setAreaCode(\Magento\Framework\App\Area::AREA_FRONTEND);
+            $this->state->setAreaCode(Area::AREA_FRONTEND);
         } catch (\Exception $e) {
             // area code is already set due wrong store architecture
         }
 
-        $areaObject = $this->areaList->getArea(\Magento\Framework\App\Area::AREA_FRONTEND);
-        $areaObject->load(\Magento\Framework\App\Area::PART_TRANSLATE);
+        $areaObject = $this->areaList->getArea(Area::AREA_FRONTEND);
+        $areaObject->load(Area::PART_TRANSLATE);
 
         $storeId = $this->storeRepository->get($storeCode)->getId();
         $this->emulation->startEnvironmentEmulation($storeId, 'frontend', true);
         $this->storeManager->setCurrentStore($storeId);
+
+        $this->layout = $this->objectManager->create(Layout::class);
 
         $xmlContent = $this->layout->createBlock('LCB\Feeds\Block\Product')
             ->setTemplate("LCB_Feeds::$type.phtml")
@@ -169,11 +188,11 @@ class Generate extends Command
 
         $feedCacheType = strtoupper($type);
         $this->cache->save(
-            $xmlContent,
-            \LCB\Feeds\Model\Cache::CODE . '_' . $feedCacheType,
-            [\LCB\Feeds\Model\Cache::CODE . '_' . $feedCacheType],
-            \LCB\Feeds\Model\Cache::LIFETIME
-        );
+                $xmlContent,
+                Cache::CODE . '_' . $feedCacheType,
+                [Cache::CODE . '_' . $feedCacheType],
+                Cache::LIFETIME
+            );
 
         $this->emulation->stopEnvironmentEmulation();
     }
