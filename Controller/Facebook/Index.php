@@ -10,8 +10,6 @@
 
 namespace LCB\Feeds\Controller\Facebook;
 
-use Magento\Framework\Controller\ResultFactory;
-
 class Index extends \LCB\Feeds\Controller\Feed
 {
 
@@ -25,12 +23,15 @@ class Index extends \LCB\Feeds\Controller\Feed
         $this->getResponse()->setHeader('Content-Type', 'text/xml', true);
         $this->getResponse()->setHeader('X-Magento_Tags', 'FEEDS');
 
-        $block = $this->resultPageFactory->create()->getLayout()
+        if ($feed = $this->getFromCache('facebook')) {
+            return $this->getResponse()->setBody($feed);
+        }
+
+        $feed = $this->resultPageFactory->create()->getLayout()
                 ->createBlock('LCB\Feeds\Block\Product')
                 ->setTemplate('LCB_Feeds::facebook.phtml')
                 ->toHtml();
 
-        $this->getResponse()->setBody($block);
+        $this->getResponse()->setBody($feed);
     }
-
 }

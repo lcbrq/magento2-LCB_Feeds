@@ -9,7 +9,6 @@ use Magento\Framework\Setup\UpgradeDataInterface;
 
 class UpgradeData implements UpgradeDataInterface
 {
-
     private $eavSetupFactory;
 
     /**
@@ -30,9 +29,10 @@ class UpgradeData implements UpgradeDataInterface
         $eavSetup = $this->eavSetupFactory->create(['setup' => $setup]);
 
         if (version_compare($context->getVersion(), '1.0.4') < 0) {
-
             $eavSetup->addAttribute(
-                    \Magento\Catalog\Model\Category::ENTITY, 'ceneo_category', [
+                \Magento\Catalog\Model\Category::ENTITY,
+                'ceneo_category',
+                [
                         'type' => 'text',
                         'label' => 'Ceneo Category',
                         'input' => 'select',
@@ -47,9 +47,10 @@ class UpgradeData implements UpgradeDataInterface
         }
 
         if (version_compare($context->getVersion(), '1.0.6') < 0) {
-
             $eavSetup->addAttribute(
-                    \Magento\Catalog\Model\Category::ENTITY, 'google_category', [
+                \Magento\Catalog\Model\Category::ENTITY,
+                'google_category',
+                [
                         'type' => 'text',
                         'label' => 'Google Category',
                         'input' => 'select',
@@ -65,5 +66,4 @@ class UpgradeData implements UpgradeDataInterface
 
         $setup->endSetup();
     }
-
 }

@@ -17,7 +17,7 @@ class Product extends \Magento\Catalog\Block\Product\AbstractProduct
      * @var \LCB\Feeds\Model\Product
      */
     protected $productModel;
-    
+
     /**
      * @var \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory
      */
@@ -49,8 +49,7 @@ class Product extends \Magento\Catalog\Block\Product\AbstractProduct
         \Magento\Catalog\Model\Product\Attribute\Source\Status $productStatus,
         \Magento\Catalog\Model\Product\Visibility $productVisibility,
         array $data = []
-    )
-    {
+    ) {
         $this->productCollectionFactory = $productCollectionFactory;
         $this->categoryCollectionFactory = $categoryCollectionFactory;
         $this->productModel = $productModel;
@@ -58,7 +57,7 @@ class Product extends \Magento\Catalog\Block\Product\AbstractProduct
         $this->productVisibility = $productVisibility;
         parent::__construct($context, $data);
     }
-    
+
     /**
      * @return \Magento\Framework\DataObject[]
      * @throws \Magento\Framework\Exception\LocalizedException
@@ -72,7 +71,7 @@ class Product extends \Magento\Catalog\Block\Product\AbstractProduct
         $collection->joinAttribute('visibility', 'catalog_product/visibility', 'entity_id', null, 'inner');
         $collection->addAttributeToFilter('status', ['in' => $this->productStatus->getVisibleStatusIds()])
                 ->addAttributeToFilter('visibility', ['in' => $this->productVisibility->getVisibleInSiteIds()]);
-        $collection->addStoreFilter($this->_storeManager->getStore()->getId());      
+        $collection->addStoreFilter($this->_storeManager->getStore()->getId());
 
         return $collection->getItems();
     }
@@ -85,13 +84,13 @@ class Product extends \Magento\Catalog\Block\Product\AbstractProduct
     {
         /** @var \Magento\Catalog\Model\ResourceModel\Category\Collection $collection */
         $collection = $this->categoryCollectionFactory->create();
-        $collection->addAttributeToSelect(array('name', 'google_category', 'ceneo_category'));
+        $collection->addAttributeToSelect(['name', 'google_category', 'ceneo_category']);
         return $collection;
     }
 
     /**
      * Convert product model into product feed model
-     * 
+     *
      * @return \LCB\Feeds\Model\Product
      */
     public function setProduct(\Magento\Catalog\Model\Product $product)
@@ -118,7 +117,7 @@ class Product extends \Magento\Catalog\Block\Product\AbstractProduct
             }
         }
 
-        $googleProductType = '';
+        $googleProductTypes = [];
         $googleCategory = '';
         $ceneoCategory = '';
         $categoryIds = array_reverse($product->getCategoryIds());
@@ -126,16 +125,15 @@ class Product extends \Magento\Catalog\Block\Product\AbstractProduct
         foreach ($categoryIds as $categoryId) {
             if (isset($this->categoryData[$categoryId])) {
                 $category = $this->categoryData[$categoryId];
-                if (!$googleProductType) {
-                    $categoryNames = [];
-                    $categoryPathIds = array_reverse(explode(',', $category->getPathInStore()));
-                    foreach ($categoryPathIds as $parentCategoryId) {
-                        if (isset($this->categoryData[$parentCategoryId])) {
-                            $categoryNames[] = $this->categoryData[$parentCategoryId]->getName();
-                        }
+                $categoryNames = [];
+                $categoryPathIds = array_reverse(explode(',', $category->getPathInStore()));
+                foreach ($categoryPathIds as $parentCategoryId) {
+                    if (isset($this->categoryData[$parentCategoryId])) {
+                        $categoryNames[] = $this->categoryData[$parentCategoryId]->getName();
                     }
-                    $googleProductType = implode($categoryNames, ' > ');
                 }
+                $googleProductTypes[] = implode($categoryNames, ' > ');
+
                 if (!$googleCategory) {
                     $googleCategory = $category->getGoogleCategory();
                 }
@@ -145,11 +143,15 @@ class Product extends \Magento\Catalog\Block\Product\AbstractProduct
             }
         }
 
+        usort($googleProductTypes, function ($a, $b) {
+            return strlen($b) - strlen($a);
+        });
+        $googleProductType = reset($googleProductTypes);
+
         $product->setData('google_product_type', $googleProductType);
         $product->setData('google_category', $googleCategory);
         $product->setData('ceneo_category', $ceneoCategory);
 
         return $product;
     }
-
 }

@@ -10,72 +10,72 @@
 
 namespace LCB\Feeds\Model;
 
-class Product extends \Magento\Catalog\Model\Product {
-
+class Product extends \Magento\Catalog\Model\Product
+{
 
     /**
      * Stock item data container
-     * 
+     *
      * @var \Magento\CatalogInventory\Model\Stock\StockItemRepository
      */
     public $stockItemRepository;
-    
+
     /**
      * Price helper for price render
-     * 
+     *
      * @var \Magento\Framework\Pricing\Helper\Data
      */
     public $priceHelper;
-    
+
     /**
      * @var Magento\Catalog\Helper\Image
      */
     public $imageHelper;
-    
+
     /**
      * Category model for feed
-     * 
+     *
      * @var \Magento\Catalog\Model\Category
      */
     public $categoryModel;
-    
+
     /**
      * Gallery handler for all images load
-     * 
+     *
      * @var \Magento\Catalog\Model\Product\Gallery\ReadHandler
      */
     public $galleryReadHandler;
-    
+
     /**
      * Stock item
-     * 
+     *
      * @var \Magento\CatalogInventory\Model\Stock
      */
     public $stock;
 
-   /**
-    * MSI Stock Id
-    *
-    * @param int
-    * @since 2.3.0
-    */
+    /**
+     * MSI Stock Id
+     *
+     * @param int
+     * @since 2.3.0
+     */
     protected $msiStockId;
 
-   /**
-    * MSI Stock Data Item Interface
-    *
-    * @since 2.3.0
-    * @var \Magento\InventorySalesApi\Api\GetStockItemDataInterface
-    */
+    /**
+     * MSI Stock Data Item Interface
+     *
+     * @since 2.3.0
+     * @var \Magento\InventorySalesApi\Api\GetStockItemDataInterface
+     */
     protected $msiStockDataInterface;
 
-   /**
-    * MSI Stock Data
-    *
-    * @since 2.3.0
-    * @var array
-    */
-    protected $msiStockData = array();
+    /**
+     * MSI Stock Data
+     *
+     * @since 2.3.0
+     * @var array
+     */
+    protected $msiStockData = [];
 
     /**
      * Extend class with additional methods
@@ -96,8 +96,8 @@ class Product extends \Magento\Catalog\Model\Product {
                 $this->msiStockId = $objectManager->get('\Magento\InventoryCatalog\Model\GetStockIdForCurrentWebsite')->execute();
                 $this->msiStockDataInterface = $objectManager->get('\Magento\InventorySalesApi\Model\GetStockItemDataInterface');
             }
-        } catch(\Exception $e) {}
-
+        } catch (\Exception $e) {
+        }
     }
 
     /**
@@ -118,7 +118,7 @@ class Product extends \Magento\Catalog\Model\Product {
 
     /**
      * Get product condition
-     * 
+     *
      * @return string
      */
     public function getCondition()
@@ -129,27 +129,25 @@ class Product extends \Magento\Catalog\Model\Product {
         }
         return $condition;
     }
-    
+
     /**
      * Get stock item
-     * 
+     *
      * @throws \Exception
      */
-    public function getStock() 
+    public function getStock()
     {
-    
         if (!$this->stock) {
             $this->stock = $this->stockItemRepository->get($this->getId());
         }
-        
+
         return $this->stock;
-        
     }
 
-   /**
-    * Get MSI stock data
-    *
-    */
+    /**
+     * Get MSI stock data
+     *
+     */
     public function getMsiStock()
     {
         if (!$this->msiStockData && $this->msiStockId && $this->msiStockDataInterface) {
@@ -161,12 +159,11 @@ class Product extends \Magento\Catalog\Model\Product {
 
     /**
      * Get product quantity
-     * 
+     *
      * @return int
      */
     public function getQty()
     {
-        
         $qty = 0;
 
         $msiData = $this->getMsiStock();
@@ -175,7 +172,7 @@ class Product extends \Magento\Catalog\Model\Product {
         }
 
         try {
-          $qty = $this->getStock()->getQty();
+            $qty = $this->getStock()->getQty();
         } catch (\Exception $e) {
             // skip
         }
@@ -185,12 +182,11 @@ class Product extends \Magento\Catalog\Model\Product {
 
     /**
      * Get stock availability
-     * 
+     *
      * @return bool
      */
     public function getAvailability()
     {
-        
         $availability = false;
 
         $msiData = $this->getMsiStock();
@@ -211,37 +207,37 @@ class Product extends \Magento\Catalog\Model\Product {
 
     /**
      * Check if product has special price
-     * 
+     *
      * @return bool
      */
     public function hasSpecialPrice()
     {
         return $this->getPrice() > $this->getFinalPrice();
     }
-    
+
     /**
      * Get product price as string with currency
-     * 
+     *
      * @return string
      */
     public function getPriceWithCurrency()
     {
-        return $this->priceHelper->currency(parent::getPrice(), true, false);
+        return str_replace("\xc2\xa0", ' ', $this->priceHelper->currency(parent::getPrice(), true, false));
     }
-    
+
     /**
      * Get product price as string with currency
-     * 
+     *
      * @return string
      */
     public function getSpecialPriceWithCurrency()
     {
-        return $this->priceHelper->currency(parent::getSpecialPrice(), true, false);
+        return str_replace("\xc2\xa0", ' ', $this->priceHelper->currency(parent::getSpecialPrice(), true, false));
     }
-    
+
     /**
      * Get currency code only
-     * 
+     *
      * @return string
      */
     public function getCurrencyCode()
@@ -251,17 +247,17 @@ class Product extends \Magento\Catalog\Model\Product {
 
     /**
      * Get product image url
-     * 
+     *
      * @return string
      */
     public function getImageUrl($type = 'product_page_main_image_default')
     {
         return $this->imageHelper->init($this, $type)->getUrl();
     }
-    
+
     /**
      * Get product images urls
-     * 
+     *
      * @return array
      */
     public function getImages()
@@ -269,15 +265,14 @@ class Product extends \Magento\Catalog\Model\Product {
         $this->galleryReadHandler->execute($this);
         return $this->getMediaGalleryImages();
     }
-    
+
     /**
      * Get Ceneo category
-     * 
+     *
      * @return string
      */
     public function getCeneoCategory()
     {
-
         if ($ceneoCategory = (string) $this->getData('ceneo_category')) {
             return $ceneoCategory;
         }
@@ -309,7 +304,6 @@ class Product extends \Magento\Catalog\Model\Product {
      */
     public function getGoogleCategory()
     {
-
         if ($googleCategory = (string) $this->getData('google_category')) {
             return $googleCategory;
         }
@@ -339,8 +333,8 @@ class Product extends \Magento\Catalog\Model\Product {
      *
      * @return string
      */
-    public function getGoogleProductType() {
-
+    public function getGoogleProductType()
+    {
         if ($googleProductType = (string) $this->getData('google_product_type')) {
             return $googleProductType;
         }
@@ -362,7 +356,6 @@ class Product extends \Magento\Catalog\Model\Product {
 
         $googleProductType = implode($categoryNames, ' > ');
         return $googleProductType;
-
     }
 
     /**
@@ -374,5 +367,4 @@ class Product extends \Magento\Catalog\Model\Product {
     {
         return $this->isVisibleInCatalog();
     }
-
 }

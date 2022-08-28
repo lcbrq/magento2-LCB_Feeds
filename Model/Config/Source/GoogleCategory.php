@@ -44,12 +44,11 @@ class GoogleCategory extends AbstractSource
 
     /**
      * Get Ceneo Categories
-     * 
+     *
      * @return array
      */
     public function getAllOptions()
     {
-
         if ($this->categories) {
             return $this->categories;
         }
@@ -57,27 +56,28 @@ class GoogleCategory extends AbstractSource
         $locale = $this->authSession->getUser()->getInterfaceLocale();
         $googleTaxonomy = $this->getGoogleTaxonomy($locale);
         $categories = [['label' => __('Please select'), 'value' => '']];
-        
+
         $taxonomyArray = [];
-        foreach($googleTaxonomy as $taxonomyRow) {
+        foreach ($googleTaxonomy as $taxonomyRow) {
             $taxonomyRow = explode(" - ", trim($taxonomyRow));
-            if(isset($taxonomyRow[0]) && isset($taxonomyRow[1])) {
+            if (isset($taxonomyRow[0]) && isset($taxonomyRow[1])) {
                 $categories[] = ['label' => $taxonomyRow[1], 'value' => $taxonomyRow[0]];
             }
         }
 
         $this->categories = $categories;
-        
+
         return $this->categories;
     }
-    
+
     /**
      * @return array
      */
     public function getGoogleTaxonomy($locale = 'en_US')
     {
         $sourceDir = $this->moduleReader->getModuleDir(
-                \Magento\Framework\Module\Dir::MODULE_ETC_DIR, 'LCB_Feeds'
+            \Magento\Framework\Module\Dir::MODULE_ETC_DIR,
+            'LCB_Feeds'
         );
 
         if (!file_exists($sourceDir . "/source/google/$locale.txt")) {
@@ -87,7 +87,5 @@ class GoogleCategory extends AbstractSource
         $taxonomyRaw = file_get_contents($sourceDir . "/source/google/$locale.txt", true);
         $taxonomyArray = [];
         return (array) explode("\n", trim($taxonomyRaw));
-
     }
-
 }

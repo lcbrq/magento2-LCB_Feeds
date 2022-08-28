@@ -2,10 +2,12 @@
 
 namespace LCB\Feeds\Cron;
 
-use \Psr\Log\LoggerInterface;
-use \Magento\Framework\App\Config\ScopeConfigInterface;
-use \Magento\Catalog\Model\ResourceModel\Product\Collection;
-use Magento\PageCache\Model\Cache;
+use LCB\Feeds\Console\Command\Generate;
+use LCB\Feeds\Model\Cache;
+use Magento\Catalog\Model\ResourceModel\Product\Collection;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\StoreManagerInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Customizable datafeeds extension for Magento 2
@@ -38,26 +40,43 @@ class Refresh
     protected $productCollection;
 
     /**
-     * @var Cache\Type
+     * @var StoreManager
      */
-    protected $cacheType;
+    protected $storeManager;
+
+    /**
+     * @var Cache
+     */
+    protected $cache;
+
+    /**
+     * @var Generate
+     */
+    protected $generator;
 
     /**
      * @param LoggerInterface $logger
      * @param ScopeConfigInterface $scopeConfig
+     * @param StoreManagerInterface $storeManager
      * @param Collection $productCollection
-     * @parma Cache\Type $cacheType
+     * @param StoreManager $storeManager
+     * @param Cache $cache
+     * @param Generate $generate
      */
     public function __construct(
-            LoggerInterface $logger,
-            ScopeConfigInterface $scopeConfig,
-            Collection $productCollection,
-            Cache\Type $cacheType
-        ) {
+        LoggerInterface $logger,
+        ScopeConfigInterface $scopeConfig,
+        StoreManagerInterface $storeManager,
+        Collection $productCollection,
+        Cache $cache,
+        Generate $generate
+    ) {
         $this->logger = $logger;
         $this->scopeConfig = $scopeConfig;
+        $this->storeManager = $storeManager;
         $this->productCollection = $productCollection;
-        $this->cacheType = $cacheType;
+        $this->cache = $cache;
+        $this->generator = $generate;
     }
 
     /**
@@ -68,8 +87,16 @@ class Refresh
         if ($this->productCollection
                 ->addFieldToFilter('updated_at', ['from' => date('Y-m-d H:i:s', time() - SELF::LAST_UPDATED_TIME)])
                 ->getSize()) {
-            $this->cacheType->clean(\Zend_Cache::CLEANING_MODE_MATCHING_TAG, ['FEEDS']);
+            $this->cache->cleanAll();
+            try {
+                foreach ($this->storeManager->getStores() as $store) {
+                    if ($store->getIsActive()) {
+                        $this->generator->generate($store->getCode(), 'google');
+                    }
+                }
+            } catch (\Exception $e) {
+                $this->logger->critical($e->getMessage());
+            }
         }
     }
-
 }
